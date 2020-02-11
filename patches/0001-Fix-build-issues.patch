@@ -1,0 +1,37 @@
+From 6cfaf3c1e0a4394de2b8bf2abad284c993792dea Mon Sep 17 00:00:00 2001
+From: Baciu Marius-Cristian <marius.baciu@stud.acs.upb.ro>
+Date: Tue, 11 Feb 2020 19:03:43 +0200
+Subject: [PATCH] Fix build issues
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The main motivation is represented by the compilation error " incompatible
+types when assigning to type ‘pthread_t {aka struct }’ from type ‘int’ " caused
+by the assumption that type pthread_t is an integer type.
+Since this field is never again referenced on top of this assumption,
+no purpose could be deduced and, therefore, no equivalent code sequence
+taking into account the actual pthread_t's structure could be found.
+It is probably worth mentioning that the platform-dependent code -
+guarded by #ifdef ENV_BEOS - references multiple times the thread id
+on top of the assumption that it is of type integer, leading to believe
+that although the assignment had a purpose, it may not be the case on all platforms.
+---
+ C/Threads.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/C/Threads.c b/C/Threads.c
+index 1b8203f..86fd705 100644
+--- a/C/Threads.c
++++ b/C/Threads.c
+@@ -228,7 +228,6 @@ WRes Thread_Close(CThread *thread)
+     if (!thread->_created) return SZ_OK;
+     
+     pthread_detach(thread->_tid);
+-    thread->_tid = 0;
+     thread->_created = 0;
+     return SZ_OK;
+ }
+-- 
+2.17.1
+
