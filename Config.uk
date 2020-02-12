@@ -1,0 +1,9 @@
+config LIBLZMA
+	bool "lzma"
+	default n
+	select LIBNOLIBC if !HAVE_LIBC
+	select LIBUKDEBUG
+	select LIBUKALLOC
+
+if LIBLZMA
+endif
